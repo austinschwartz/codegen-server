@@ -1,0 +1,4 @@
+gem 'sinatra', '1.4.8'
+gem 'redis', '3.3.3'
+
+gem 'pickle-interpreter', '0.1.1'
