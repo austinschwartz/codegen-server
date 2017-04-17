@@ -58,6 +58,10 @@ get '/name/:token' do
 end
 
 get '/change/:token' do
+  name = token_to_name(redis, params['token'])
+  if name == "N/A" then
+    return "Invalid token"
+  end
   token = params['token']
   type = params[:type]
   if type then

@@ -105,7 +105,7 @@ u = [["aggarwak", "dw4biKljHFt1uX5Zt9bFir7YRXqlSlz"],
 
 #redis.set("lab5users", "{}")
 u.each do |user, id|
-  name = Faker::Name.unique.name 
-  redis.hmset("lab5users", id, name)
+  #name = Faker::Name.unique.name 
+  #redis.hmset("lab5users", id, name)
 end
 
