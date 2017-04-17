@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import socketserver
 import redis
 import json
@@ -43,6 +45,10 @@ class Handler(socketserver.StreamRequestHandler):
         #self.request.sendall(bytes(scores))
 
 if __name__ == "__main__":
-    HOST, PORT = "0.0.0.0", int(sys.argv[1])
+    if len(sys.argv) == 1:
+        port = 5858
+    else:
+        port = int(sys.argv[1])
+    HOST, PORT = "0.0.0.0", port
     server = socketserver.TCPServer((HOST, PORT), Handler)
     server.serve_forever()

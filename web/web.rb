@@ -7,11 +7,18 @@ redis = Redis.new(:host => "localhost", :port => 6379, :db => 0)
 
 helpers do
   def token_to_name(redis, token)
-    redis.hmget("lab5users", token)[0]
+    a = redis.hmget("lab5users", token)
+    if a.length == 1 and a[0] then
+      return a[0]
+    else
+      "N/A"
+    end
   end
 
   def replace_keys_with_names(redis, m)
-    m.map {|k, v| [token_to_name(redis, k), v] }.to_h
+    m.map {|k, v| 
+      [token_to_name(redis, k), v] 
+    }.to_h
   end
 
   def get_scores redis
@@ -19,9 +26,11 @@ helpers do
     m2 = {}
     m.each do |key, str|
       nk = token_to_name(redis, key)
-      m2[nk] = JSON.parse(str)
-      if m2[nk]["4"] == "-1" then
-        m2[nk]["4"] = ""
+      if nk != "N/A" then
+        m2[nk] = JSON.parse(str)
+        if m2[nk]["4"] == "-1" then
+          m2[nk]["4"] = ""
+        end
       end
     end
 
@@ -52,7 +61,6 @@ get '/change/:token' do
   token = params['token']
   type = params[:type]
   if type then
-    puts Faker::VERSION
     if type == 'pokemon' then
       name = Faker::Pokemon.unique.name
     end
@@ -83,7 +91,7 @@ get '/change/:token' do
   name
 end
 
-get '/api' do
+get '/lolscores' do
   content_type 'application/json'
   m = redis.hgetall("lab6map")
   replace_keys_with_names(redis, m).to_json
