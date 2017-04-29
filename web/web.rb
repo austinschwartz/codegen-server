@@ -28,7 +28,7 @@ helpers do
       nk = token_to_name(redis, key)
       if nk != "N/A" then
         m2[nk] = JSON.parse(str)
-        if m2[nk]["4"] == "-1" then
+        if m2[nk]["4"] == "-1" or m2[nk]["4"] == "NaN" then
           m2[nk]["4"] = ""
         end
       end
@@ -59,9 +59,9 @@ end
 
 get '/change/:token' do
   name = token_to_name(redis, params['token'])
-  if name == "N/A" then
-    return "Invalid token"
-  end
+  #if name == "N/A" then
+    #return "Invalid token"
+  #end
   token = params['token']
   type = params[:type]
   if type then
@@ -129,7 +129,7 @@ end
 get '/test/2' do
 	content_type 'text/plain'
 	"""
-long factorial(int num, long acc) {
+long factorial(long num, long acc) {
   if (num == 0) 
     return acc;
   else
@@ -164,7 +164,7 @@ long f() {
 long main() {
     long g, h, fac;
     g = f();
-    scanf(\"%ld\\n\", &fac)
+    scanf(\"%ld\\n\", &fac);
     h = factorial(fac, 1);
     printf(\"res = %ld, %ld\\n\", g, h);
 }
@@ -239,7 +239,7 @@ content_type "text/plain"
 """
 void printArray( long* a, long left, long right) {
   long i;
-  for (i = left; i <= right; i = i+1) {
+  for (i = left; i <= right; i = i + 1) {
     printf(\"%ld \", a[i]);
   }
   printf(\"\\n\");
@@ -249,43 +249,50 @@ void print(char* s) {
   printf(\"==%s==\\n\", s);
 }
 
-long quicksortsubrange(long* a, long left, long right)
+long partition(long* a, long left, long right, long pivot)
 {
-  long x, l, g, tmp;
-  if (left >= right) {
-    return 0;
-  }
+  long l, r, tmp;
+  l = left - 1;
+  r = right;
 
-  x = a[right];
-
-  l = left;
-  g = right - 1;
-
-  while (l<g) {
-    while (l<g && a[l]<x) {
+  while (1) {
+    l = l + 1;
+    while (a[l] < pivot) {
       l = l + 1;
     }
 
-    while (l<g && a[g]>x) {
-      g = g - 1;
+    if (r > 0)
+      r = r - 1;
+    while (r > 0 && a[r] > pivot) {
+      r = r - 1;
     }
 
-    if (l<g) {
+    if (l >= r) {
+      break;
+    } else {
       tmp = a[l];
-      a[l] = a[g];
-      a[g]=tmp;
+      a[l] = a[r];
+      a[r] = tmp;
     }
   }
 
-  a[right]=a[l];
-  a[l]=x;
+  tmp = a[l];
+  a[l] = a[right];
+  a[right] = tmp;
 
-  quicksortsubrange(a, left, l - 1);
-  quicksortsubrange(a,g+1, right);
+  return l;
 }
 
-void quicksort(long* a, long n) {
-  quicksortsubrange(a, 0, n - 1);
+void quicksort(long* a, long left, long right) {
+  long pivot, p;
+  if (right - left <= 0) {
+    return;
+  } else {
+    pivot = a[right];
+    p = partition(a, left, right, pivot);
+    quicksort(a, left, p - 1);
+    quicksort(a, p + 1, right);
+  }
 }
 
 void shuffle(long* a, long n) {
@@ -300,13 +307,13 @@ void shuffle(long* a, long n) {
 
 void main() {
   long n, i;
-  long* a;
+  long* a, b;
 
   print(\"Hello\");
 
   n = 10;
-
-  a = malloc(n*8);
+  
+  a = malloc(n * 8);
 
   a[0] = 8;
   a[1] = 7;
@@ -323,7 +330,7 @@ void main() {
   printArray(a, 0, n - 1);
   for (i = 0; i < 5000000; i = i + 1) {
     shuffle(a, n - 1);
-    quicksort(a, n);
+    quicksort(a, 0, n - 1);
   }
 
   printf(\"-------- After -------\\n\");
@@ -342,6 +349,10 @@ get '/' do
   </head>
   <body>
     <div class='container' style='width: 500px;'>
+    <div class='jumbogram' style='text-align: center;'>
+      <h2> Contest is closed</h2>
+      <h3>thank you for participating</h3>
+    </div>
     <table class='table table-striped'>
     <tr>
       <td>Name</td>
